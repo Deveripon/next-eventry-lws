@@ -1,9 +1,11 @@
+import { connectMongoDB } from "@/dbConnection/dbConnection";
 import { EventsModel } from "@/models/event-models";
 import { UserModel } from "@/models/user-models";
 import { remove_IdFromArrays, remove_idFromObject } from "@/utils";
 import mongoose, { Mongoose } from "mongoose";
 
 export async function getAllEvents(query) {
+    await connectMongoDB();
     if (!query) {
         const data = await EventsModel.find().lean();
         const allEvents = remove_IdFromArrays(data);
@@ -17,15 +19,18 @@ export async function getAllEvents(query) {
 }
 
 export async function getEventById(id) {
+    await connectMongoDB();
     const data = await EventsModel.findById(id).lean();
     return remove_idFromObject(data);
 }
 
 export async function createUser(userObject) {
+    await connectMongoDB();
     return await UserModel.create(userObject);
 }
 
 export async function findUserByCredentials(credentials) {
+    await connectMongoDB();
     const user = await UserModel.findOne(credentials).lean();
     if (user) {
         return remove_idFromObject(user);
@@ -34,6 +39,7 @@ export async function findUserByCredentials(credentials) {
 }
 
 export async function toggleInterest(userId, eventId) {
+    await connectMongoDB();
     const event = await EventsModel.findById(eventId);
     if (event) {
         const isUserInterested = event?.interested_ids?.find(
@@ -53,6 +59,7 @@ export async function toggleInterest(userId, eventId) {
 }
 
 export async function updateGoing(userId, eventId) {
+    await connectMongoDB();
     const event = await EventsModel.findById(eventId);
     if (event) {
         event?.going_ids?.push(new mongoose.Types.ObjectId(`${userId}`));
